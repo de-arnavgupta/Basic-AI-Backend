@@ -1,24 +1,25 @@
-package de.arnav.springai;
+package de.arnav.springai.controller.implementation;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import de.arnav.springai.controller.ChatController;
+import de.arnav.springai.service.ChatService;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ChatController
-{
-    private ChatService chatService;
+public class ChatControllerImpl implements ChatController {
 
-    public ChatController(ChatService chatService) {
+    private final ChatService chatService;
+
+    public ChatControllerImpl(ChatService chatService) {
         this.chatService = chatService;
     }
 
-    @GetMapping("/chat")
+    @Override
     public String chat(@RequestParam String message) {
         return chatService.chat(message);
     }
 
-    @GetMapping("/response")
+    @Override
     public String getResponse(@RequestParam String message) {
         return chatService.getResponse(message);
     }

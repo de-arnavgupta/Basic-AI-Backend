@@ -1,0 +1,4 @@
+package de.arnav.springai.controller;
+
+public class CommonController {
+}
