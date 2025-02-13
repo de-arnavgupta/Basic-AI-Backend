@@ -1,4 +1,18 @@
 package de.arnav.springai.service.implementation;
 
-public class ChatServiceImpl {
+import de.arnav.springai.service.ChatService;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ChatServiceImpl implements ChatService {
+
+    private final ChatModel chatModel;
+
+    public ChatServiceImpl(ChatModel chatModel) {
+        this.chatModel = chatModel;
+    }
+
+    @Override
+    gen-lang-client-0588603555
 }

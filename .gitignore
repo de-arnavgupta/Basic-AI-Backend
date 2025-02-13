@@ -1,5 +1,7 @@
-HELP.md
-target/
+# Ignore environment files
+.env
+
+# Ignore Maven wrapper jar
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
