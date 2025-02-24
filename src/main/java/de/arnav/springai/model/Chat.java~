@@ -1,0 +1,10 @@
+package de.arnav.springai.model;
+
+
+@Entity
+public class Chat {
+    public String message;
+    public String response;
+
+
+}

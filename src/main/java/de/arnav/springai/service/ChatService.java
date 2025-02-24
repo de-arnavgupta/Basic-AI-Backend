@@ -1,6 +1,10 @@
 package de.arnav.springai.service;
 
+import de.arnav.springai.model.Conversation;
+import java.util.List;
+
 public interface ChatService {
-    String chat(String message);
     String getResponse(String message);
+    List<Conversation> getChatHistory();
+    void saveConversation();
 }
