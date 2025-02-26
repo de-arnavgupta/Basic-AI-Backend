@@ -6,7 +6,6 @@ import de.arnav.springai.service.ChatService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class ChatControllerImpl implements ChatController {
@@ -18,8 +17,8 @@ public class ChatControllerImpl implements ChatController {
     }
 
     @Override
-    public String getResponse(@RequestParam String message, @RequestParam(required = false) Long conversationId) {
-        return chatService.getResponse(message, conversationId);
+    public String getResponse(@RequestParam String message) {
+        return chatService.getResponse(message);
     }
 
     @Override
@@ -31,10 +30,5 @@ public class ChatControllerImpl implements ChatController {
     public String saveConversation() {
         chatService.saveConversation();
         return "Conversation saved!";
-    }
-
-    @Override
-    public Optional<Conversation> getConversationById(@RequestParam Long conversationId) {
-        return chatService.getConversationById(conversationId);
     }
 }

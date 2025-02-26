@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ChatServiceImpl implements ChatService {
@@ -20,8 +21,8 @@ public class ChatServiceImpl implements ChatService {
     private final ChatModel chatModel;
     private final ConversationRepository conversationRepository;
     private final ObjectMapper objectMapper;
-
     private List<String> currentConversation = new ArrayList<>();
+    private Long activeConversationId = null;
 
     public ChatServiceImpl(ChatModel chatModel, ConversationRepository conversationRepository, ObjectMapper objectMapper) {
         this.chatModel = chatModel;
@@ -31,7 +32,28 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public String getResponse(String message) {
+    public String getResponse(String message, Long conversationId) {
+        Conversation conversation;
+
+        if (conversationId != null) {
+            Optional<Conversation> existingConversation = conversationRepository.findById(conversationId);
+            if (existingConversation.isPresent()) {
+                conversation = existingConversation.get();
+                activeConversationId = conversationId;
+                currentConversation = loadMessagesFromJson(conversation.getMessages());
+            }
+            else
+            {
+                conversation = new Conversation();
+                activeConversationId = null;
+            }
+        }
+        else
+        {
+            conversation = new Conversation();
+            activeConversationId = null;
+        }
+
         ChatResponse response = chatModel.call(
                 new Prompt(
                         message,
@@ -41,6 +63,7 @@ public class ChatServiceImpl implements ChatService {
                 ));
         String botResponse = response.getResult().getOutput().getContent();
         saveMessageToCurrentConversation(message, botResponse);
+
         return botResponse;
     }
 
@@ -53,15 +76,40 @@ public class ChatServiceImpl implements ChatService {
     public void saveConversation() {
         try {
             String jsonConversation = objectMapper.writeValueAsString(currentConversation);
-            conversationRepository.save(new Conversation(jsonConversation));
+            if (activeConversationId != null) {
+                Conversation existingConversation = conversationRepository.findById(activeConversationId).orElseThrow();
+                existingConversation.setMessages(jsonConversation);
+                conversationRepository.save(existingConversation);
+            }
+            else
+            {
+                conversationRepository.save(new Conversation(jsonConversation));
+            }
             currentConversation.clear();
-        } catch (JsonProcessingException e) {
+            activeConversationId = null;
+        }
+        catch (JsonProcessingException e)
+        {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public Optional<Conversation> getConversationById(Long id) {
+        return conversationRepository.findById(id);
     }
 
     private void saveMessageToCurrentConversation(String message, String response) {
         currentConversation.add("You: " + message);
         currentConversation.add("Bot: " + response);
+    }
+
+    private List<String> loadMessagesFromJson(String json) {
+        try {
+            return objectMapper.readValue(json, List.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }
